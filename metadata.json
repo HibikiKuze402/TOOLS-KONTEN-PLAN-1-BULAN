@@ -1,0 +1,6 @@
+{
+  "name": "Tools Pembuatan Content Plan 1 Bulan",
+  "description": "Tools otomatis untuk membuat rencana konten 1 bulan penuh secara terstruktur untuk berbagai platform sosial media dengan kecerdasan buatan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
