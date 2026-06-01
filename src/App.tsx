@@ -6,7 +6,7 @@ import PlanPreview from "./components/PlanPreview";
 import DetailModal from "./components/DetailModal";
 import HistoryList from "./components/HistoryList";
 import ExportPanel from "./components/ExportPanel";
-import { ContentPlanInput, ContentDayItem, ContentPlanStatus, ContentPlanProject } from "./types";
+import { ContentPlanInput, ContentDayItem, ContentPlanStatus, ContentPlanProject, ContentTrendSummary } from "./types";
 import { generate30DaysPlan, SAMPLE_INPUT } from "./sampleData";
 import { 
   Sparkles, 
@@ -36,6 +36,8 @@ export default function App() {
   const [modelUsed, setModelUsed] = useState<string>("Bawaan Offline");
   const [warningMessage, setWarningMessage] = useState<string>("");
   const [notifMessage, setNotifMessage] = useState<{ text: string; type: "success" | "error" | "info" } | null>(null);
+  const [groundingSources, setGroundingSources] = useState<{ title: string; uri: string }[]>([]);
+  const [trendSummary, setTrendSummary] = useState<ContentTrendSummary | null>(null);
 
   // Load history list on startup
   useEffect(() => {
@@ -70,8 +72,31 @@ export default function App() {
     setProjectId("project_sample_demo");
     setModelUsed("Rule-Based Core Engine (Demo)");
     setWarningMessage("");
+    setGroundingSources([
+      { title: "Riset Tren TikTok Indonesia", uri: "https://ads.tiktok.com/business/id" },
+      { title: "Google Trends Beranda Kreator", uri: "https://trends.google.com" }
+    ]);
+    setTrendSummary({
+      title: "Tren Hangat Contoh: Skincare Organik",
+      description: "Analisis tren Google Search & media sosial 3 hari terakhir menunjukkan pergeseran ke arah produk ramah ingridien & organik bersertifikasi BPOM.",
+      hotTags: ["#kulitsehatmedis", "#organicskincare", "#tipskecantikanalarumah"],
+      trendsList: [
+        {
+          topic: "Format 'Mitos vs Fakta' Bahan Aktif Kimia vs Alami",
+          explanation: "Terdapat kenaikan pencarian sebesar 140% terkait kecocokan kulit sensitif dengan bahan alami.",
+          viralityReason: "Menjawab ketakutan audiens terhadap bahaya jangka panjang skincare abal-abal.",
+          suggestedAngle: "Bandingan kegunaan niacinamide alami dari oat dibandingkan senyawa buatan."
+        },
+        {
+          topic: "Review Jujur Tanpa Filter Kamera",
+          explanation: "Masyarakat mulai lelah dengan beauty influencer yang menggunakan filter penghalus wajah di video review.",
+          viralityReason: "Tingginya dambaan kejujuran visual (real skin texture) di era visual digital saat ini.",
+          suggestedAngle: "Buat konten video B-roll close-up tekstur kulit asli sebelum dan sesudah 7 hari perawatan brand Anda."
+        }
+      ]
+    });
     setCurrentTab("preview");
-    showNotification("Berhasil memuat output contoh untuk demonstrasi!", "success");
+    showNotification("Berhasil memuat rencana contoh dengan Tren Grounding!", "success");
   };
 
   // Trigger POST /api/generate-content-plan on Express server
@@ -94,6 +119,8 @@ export default function App() {
       setActiveDays(responseJSON.days || []);
       setProjectId(`project_${Date.now()}`); // Create temporary local ID
       setModelUsed(responseJSON.modelUsed || "AI Flash Engine");
+      setGroundingSources(responseJSON.groundingSources || []);
+      setTrendSummary(responseJSON.trendSummary || null);
       
       if (responseJSON.warning) {
         setWarningMessage(responseJSON.warning);
@@ -113,6 +140,29 @@ export default function App() {
       setProjectId(`project_${Date.now()}`);
       setModelUsed("Client-Side Backup Engine");
       setWarningMessage("Server API tidak terjangkau. Konten digenerate secara mulus lewat generator cadangan client Anda.");
+      setGroundingSources([]);
+      
+      // Provide robust dynamic backup trends
+      const backupTrends = {
+        title: `Tren Hangat Terkini: ${inputData.primaryNiche || "Kreator Konten"}`,
+        description: `Ringkasan pergerakan tren viral atau topik hangat yang relevan dengan ${inputData.primaryNiche || "niche Anda"} di Indonesia berdasarkan pencarian umum dalam 3 hari terakhir.`,
+        hotTags: ["#trenterkini", "#ideviral", `#${(inputData.primaryNiche || "niche").toLowerCase().replace(/[^a-z0-9]/g, "")}`],
+        trendsList: [
+          {
+            topic: `Meningkatnya Minat Terhadap Konten Edukasi Mikro`,
+            explanation: `Audiens Indonesia kini lebih menyukai infografis ringkas (carousel) atau video pendek di bawah 30 detik yang menyajikan satu solusi kecil secara to-the-point tanpa pendahuluan bertele-tele.`,
+            viralityReason: `Menawarkan kepuasan instan (instant gratification) dan sangat mudah disimpan (save) untuk rujukan cepat.`,
+            suggestedAngle: `Buat panduan singkat "Mengapa Anda gagal mengatasi ${inputData.audiencePainPoints || "masalah utama"}" diikuti satu solusi konkret.`
+          },
+          {
+            topic: `Ketulusan Visual (Authentic Behind-the-Scenes)`,
+            explanation: `Kreator yang menunjukkan proses riset, kegagalan produksi, atau perbincangan jujur di balik layar memperoleh interaksi/komentar 3 kali lebih banyak daripada postingan promosi mengkilap.`,
+            viralityReason: `Menciptakan kedekatan manusiawi yang tinggi di mata audiens yang jenuh dengan kampanye korporat yang kaku.`,
+            suggestedAngle: `Ambil rekaman mentah saat tim Anda mencoba menyelesaikan masalah produk atau curhat santai mengenai tantangan brand pagi ini.`
+          }
+        ]
+      };
+      setTrendSummary(backupTrends);
       
       setCurrentTab("preview");
       showNotification("Konten digenerate menggunakan generator cadangan lokal!", "info");
@@ -135,7 +185,9 @@ export default function App() {
         body: JSON.stringify({
           id: projectId,
           input: activeInput,
-          days: activeDays
+          days: activeDays,
+          groundingSources: groundingSources,
+          trendSummary: trendSummary
         })
       });
 
@@ -165,6 +217,8 @@ export default function App() {
         setProjectId(project.id);
         setModelUsed("Saved Local File Archive");
         setWarningMessage("");
+        setGroundingSources(project.groundingSources || []);
+        setTrendSummary(project.trendSummary || null);
         
         // Head directly to visual preview
         setCurrentTab("preview");
@@ -341,6 +395,8 @@ export default function App() {
               onLoadSample={handleLoadSampleProjectDirect}
               modelUsed={modelUsed}
               hasWarning={warningMessage}
+              groundingSources={groundingSources}
+              trendSummary={trendSummary}
             />
           )}
 

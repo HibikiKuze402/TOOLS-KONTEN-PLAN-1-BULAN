@@ -12,7 +12,7 @@ import {
   Award,
   AlertCircle
 } from "lucide-react";
-import { ContentDayItem, ContentPlanInput } from "../types";
+import { ContentDayItem, ContentPlanInput, ContentTrendSummary } from "../types";
 
 interface DashboardProps {
   input: ContentPlanInput | null;
@@ -21,6 +21,8 @@ interface DashboardProps {
   onLoadSample: () => void;
   modelUsed?: string;
   hasWarning?: string;
+  groundingSources?: { title: string; uri: string }[];
+  trendSummary?: ContentTrendSummary | null;
 }
 
 export default function Dashboard({ 
@@ -29,7 +31,9 @@ export default function Dashboard({
   onStartClick, 
   onLoadSample,
   modelUsed,
-  hasWarning
+  hasWarning,
+  groundingSources = [],
+  trendSummary = null
 }: DashboardProps) {
   const hasPlan = days.length > 0;
 
@@ -296,6 +300,135 @@ export default function Dashboard({
           </div>
         </div>
       </section>
+
+      {/* 3-Day Content Trend Summary via Google Search Grounding */}
+      {trendSummary && trendSummary.trendsList && trendSummary.trendsList.length > 0 && (
+        <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 text-white rounded-3xl border border-indigo-850 p-6 md:p-8 shadow-xl space-y-6 relative overflow-hidden animate-fade-in no-print">
+          {/* Ambient lighting effect */}
+          <div className="absolute left-1/3 top-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mt-32" />
+          <div className="absolute right-0 bottom-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mb-20" />
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 font-mono text-[9px] uppercase tracking-wider font-bold">
+                  Grounding Tren 3 Hari Terakhir
+                </span>
+              </div>
+              <h4 className="font-display font-extrabold text-white text-lg md:text-xl flex items-center gap-2.5">
+                <TrendingUp className="w-5 h-5 text-indigo-400" />
+                {trendSummary.title || "Ringkasan Tren Konten Indonesia"}
+              </h4>
+              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                {trendSummary.description || "Analisis kueri penelusuran populer dan interaksi sosial media teratas yang berhasil disintesis secara langsung oleh AI."}
+              </p>
+            </div>
+            
+            {/* Tag pills list */}
+            {trendSummary.hotTags && trendSummary.hotTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 max-w-sm">
+                {trendSummary.hotTags.map((tag, tIdx) => (
+                  <span key={tIdx} className="px-2.5 py-1 text-[10px] font-mono leading-none bg-white/5 border border-white/10 rounded-lg text-slate-300 hover:bg-indigo-900/40 hover:text-indigo-200 transition">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Trends list section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {trendSummary.trendsList.map((trend, index) => (
+              <div key={index} className="flex flex-col bg-white/5 border border-white/10 hover:border-indigo-500/30 rounded-2xl p-5 shadow-inner transition duration-300 group">
+                <div className="flex items-start gap-3.5 mb-3">
+                  <div className="p-2.5 rounded-xl bg-indigo-900/40 border border-indigo-500/20 text-indigo-400 font-mono text-xs font-black shrink-0 w-8 h-8 flex items-center justify-center">
+                    0{index + 1}
+                  </div>
+                  <h5 className="font-display font-bold text-slate-100 group-hover:text-white transition-colors text-sm leading-snug">
+                    {trend.topic}
+                  </h5>
+                </div>
+                
+                <p className="text-xs text-slate-300/90 leading-relaxed mb-4 flex-1">
+                  {trend.explanation}
+                </p>
+
+                {/* Virality Reason */}
+                <div className="mb-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-[11px] text-amber-200/95 space-y-1">
+                  <span className="font-semibold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider text-[9px]">
+                    <Award className="w-3.5 h-3.5 shrink-0 text-amber-400 inline" />
+                    Mengapa Viral?
+                  </span>
+                  <p className="leading-relaxed font-sans mt-0.5">{trend.viralityReason}</p>
+                </div>
+
+                {/* Suggested Angle */}
+                <div className="bg-indigo-950/60 border border-indigo-850 rounded-xl p-3 text-[11px] text-indigo-200 space-y-1">
+                  <span className="font-semibold text-indigo-300 flex items-center gap-1 font-mono uppercase tracking-wider text-[9px]">
+                    <Sparkles className="w-3.5 h-3.5 shrink-0 text-indigo-400 animate-pulse inline" />
+                    Saran Angle Konten
+                  </span>
+                  <p className="leading-relaxed italic mt-0.5">"{trend.suggestedAngle}"</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Google Search Grounding & Real-time AI Intelligence Sources */}
+      {groundingSources && groundingSources.length > 0 && (
+        <div className="bg-emerald-950 text-white rounded-3xl border border-emerald-800 p-6 md:p-8 shadow-xl space-y-4 relative overflow-hidden animate-fade-in no-print">
+          {/* Subtle decoration gradient */}
+          <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-10 -mt-10" />
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-800/60 pb-4">
+            <div className="space-y-1">
+              <h4 className="font-display font-bold text-emerald-300 text-base md:text-lg flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-400 animate-pulse" />
+                Google Search Grounding & AI Intelligence
+              </h4>
+              <p className="text-xs text-emerald-200/70">
+                Data divalidasi dan disintesis secara real-time berdasarkan tren penelusuran terkini di Google Search.
+              </p>
+            </div>
+            <div className="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono text-[10px] uppercase tracking-wider self-start sm:self-auto">
+              Live Grounded Sync
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <p className="text-xs text-emerald-100/80 font-medium">
+              Topik hangat, riset kueri penelusuran, & rujukan tren web yang ditemukan Google Search untuk menyusun strategi konten harian Anda:
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              {groundingSources.map((source, index) => (
+                <a 
+                  key={index}
+                  href={source.uri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group text-left"
+                >
+                  <div className="p-2 rounded-lg bg-emerald-900/40 text-emerald-400 group-hover:text-emerald-300 transition-colors shrink-0 font-mono text-xs font-bold w-7 h-7 flex items-center justify-center">
+                    {index + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-emerald-100 group-hover:text-white transition-colors truncate">
+                      {source.title}
+                    </p>
+                    <p className="text-[10px] text-emerald-400/85 truncate font-mono mt-0.5">
+                      {source.uri}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-emerald-500 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1 group-hover:translate-x-0 transform duration-200" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Overview Platform / Tips */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

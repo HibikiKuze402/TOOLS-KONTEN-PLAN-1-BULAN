@@ -124,9 +124,25 @@ export interface ContentDayItem {
   productionChecklist?: string[];
 }
 
+export interface TrendItem {
+  topic: string;
+  explanation: string;
+  viralityReason: string;
+  suggestedAngle: string;
+}
+
+export interface ContentTrendSummary {
+  title: string;
+  description: string;
+  hotTags: string[];
+  trendsList: TrendItem[];
+}
+
 export interface ContentPlanProject {
   id: string;
   createdAt: string;
   input: ContentPlanInput;
   days: ContentDayItem[];
+  groundingSources?: { title: string; uri: string }[];
+  trendSummary?: ContentTrendSummary;
 }
